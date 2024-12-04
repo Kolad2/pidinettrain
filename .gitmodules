@@ -1,0 +1,6 @@
+[submodule "rockedgesdetectors"]
+	path = rockedgesdetectors
+	url = https://github.com/Kolad2/rockedgesdetectors.git
+[submodule "rocknetmanager"]
+	path = rocknetmanager
+	url = https://github.com/IDGRockFragmentationAnaliz/rocknetmanager.git
