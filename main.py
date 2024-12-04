@@ -33,8 +33,8 @@ def main():
     torch.manual_seed(seed)
     torch.cuda.manual_seed_all(seed)
     #checkpoint_path_7 = Path("models/pidinetmodels/table7_pidinet.pth")
-    checkpoint_path = Path("save_models/save_models/checkpoint_100.pth")
-    image_path = Path("data/test.png")
+    checkpoint_path = Path("save_models/checkpoint_100.pth")
+    #image_path = Path("data/test.png")
 
     model = ModelPiDiNet(checkpoint_path)
     #model = ModelPiDiNet()
@@ -60,8 +60,9 @@ def main():
 
 
 
-    model.model.eval()
-    result_1 = model(cv2.imread(str(image_path)))
+    #model.model.eval()
+
+    #result_1 = model(cv2.imread(str(image_path)))
 
     # fig = plt.figure(figsize=(7, 9))
     # axs = [fig.add_subplot(1, 1, 1)]
