@@ -6,17 +6,22 @@ from rocknetmanager.tools.shape_load import shape_load
 import pandas as pd
 from rocknetmanager.tools.image_data import ImageData
 from tqdm import tqdm
+import json
 
 
-def main(image_folders):
-	dataset_root = Path("D:/1.ToSaver/profileimages/train_data")
+def main():
+	with open("./config.json") as file:
+		config = json.load(file)
+		image_folders = [Path(path) for path in config["databases"]]
+		dataset_root = Path(config["train_folder"])
+
 	lst = DatasetPathList(dataset_root)
 
 	images_folder = image_folders[0]
 	process_folder(images_folder, lst)
 
-	images_folder = image_folders[1]
-	process_folder(images_folder, lst)
+	#images_folder = image_folders[1]
+	#process_folder(images_folder, lst)
 
 	images_folder = image_folders[2]
 	process_folder(images_folder, lst)
@@ -45,7 +50,7 @@ def crop_save(data, save_path, lst):
 		lst.add(str(image_path), str(label_path))
 
 
-def process_image(data: ImageData, bbox, lst, save_path=None, cropshift=(512, 512), cropres=(1024, 1024)):
+def process_image(data: ImageData, bbox, lst, save_path=None, cropshift=(512, 512), cropres=(512, 512)):
 	save_path = lst.root if save_path is None else save_path
 	list_x = np.arange(bbox[0], bbox[2], cropshift[0])
 	list_y = np.arange(bbox[1], bbox[3], cropshift[1])
@@ -97,11 +102,7 @@ class DatasetPathList:
 		lst = pd.read_csv(str(load_path), sep='\t', header=None)
 
 
-roots = [
-	Path("D:/1.ToSaver/profileimages/Loviisa_database"),
-	Path("D:/1.ToSaver/profileimages/Matteo_database"),
-	Path("D:/1.ToSaver/profileimages/photo_database_complited"),
-]
 
-main(roots)
+
+main()
 

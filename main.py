@@ -21,7 +21,7 @@ from rocknetmanager.dataset import Dataset
 import matplotlib.pyplot as plt
 
 from rocknetmanager.train import ModelTrain
-from rocknetmanager.utils import save_checkpoint
+from rocknetmanager.save_checkpoint import save_checkpoint
 
 
 def main():
@@ -32,16 +32,16 @@ def main():
     seed = int(time.time())
     torch.manual_seed(seed)
     torch.cuda.manual_seed_all(seed)
-    #checkpoint_path_7 = Path("models/pidinetmodels/table7_pidinet.pth")
-    checkpoint_path = Path("save_models/checkpoint_100.pth")
-    #image_path = Path("data/test.png")
+    #checkpoint_path = Path("models/table7_pidinet.pth")
+    checkpoint_path = Path("save_models/checkpoint_000.pth")
+    test_image_folder = Path("test_images")
 
     model = ModelPiDiNet(checkpoint_path)
     #model = ModelPiDiNet()
 
     conv_weights, bn_weights, relu_weights = model.get_weights()
     wd = 1e-4
-    lr = 0.005
+    lr = 1e-4
 
     param_groups = [{
         'params': conv_weights,
@@ -56,37 +56,37 @@ def main():
     }]
 
     optimizer = torch.optim.Adam(param_groups, betas=(0.9, 0.99))
-    # optimizer = torch.optim.SGD(param_groups, momentum=0.9)
-
-
-
-    #model.model.eval()
-
-    #result_1 = model(cv2.imread(str(image_path)))
-
-    # fig = plt.figure(figsize=(7, 9))
-    # axs = [fig.add_subplot(1, 1, 1)]
-    # axs[0].imshow(result_1)
-    # plt.show()
+    for image_path in test_image_folder.iterdir():
+        save_image_test(model, image_path)
 
     trainer = ModelTrain(data, model.model, optimizer)
-    trainer.train()
+    for epoch in range(1, 100):
+        trainer.train()
+        saveID = save_checkpoint({
+            'epoch': epoch,
+            'state_dict': model.model.state_dict(),
+            'optimizer': optimizer.state_dict(),
+        }, epoch, "save_models")
+        for image_path in test_image_folder.iterdir():
+            epoch_folder = Path("train_test/epoch_" + str(epoch))
+            epoch_folder.mkdir(parents=False, exist_ok=True)
+            save_image_test(model, image_path, epoch_folder)
 
-    saveID = save_checkpoint({
-        'epoch': 1,
-        'state_dict': model.model.state_dict(),
-        'optimizer': optimizer.state_dict(),
-    }, 1, "save_models")
 
+
+def save_image_test(model, image_path: Path, save_folder=None):
+    save_folder = "train_test" if save_folder is None else str(save_folder)
+    #
     model.model.eval()
-    result_2 = model(cv2.imread(str(image_path)))
-
-    fig = plt.figure(figsize=(7, 9))
+    image = cv2.imread(str(image_path))
+    result = model(image)
+    fig = plt.figure(figsize=(7, 4))
     axs = [fig.add_subplot(1, 2, 1),
            fig.add_subplot(1, 2, 2)]
-    axs[0].imshow(result_1)
-    axs[1].imshow(result_2)
-    plt.show()
+    axs[1].imshow(image)
+    axs[0].imshow(result)
+    #plt.show()
+    fig.savefig(save_folder + "/" + image_path.name)
 
 
 if __name__ == '__main__':

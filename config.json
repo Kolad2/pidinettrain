@@ -1,0 +1,8 @@
+{
+  "databases": [
+    "D:/1.ToSaver/profileimages/Loviisa_database",
+    "D:/1.ToSaver/profileimages/Matteo_database",
+    "D:/1.ToSaver/profileimages/photo_database_complited"
+  ],
+  "train_folder": "D:/1.ToSaver/profileimages/train_data"
+}
