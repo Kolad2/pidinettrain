@@ -32,15 +32,15 @@ def main():
     seed = int(time.time())
     torch.manual_seed(seed)
     torch.cuda.manual_seed_all(seed)
-    #checkpoint_path = Path("models/table7_pidinet.pth")
-    checkpoint_path = Path("save_models/checkpoint_000.pth")
+    checkpoint_path = Path("models/table7_pidinet.pth")
+    #checkpoint_path = Path("save_models/checkpoint_000.pth")
     test_image_folder = Path("test_images")
 
     model = ModelPiDiNet(checkpoint_path)
     #model = ModelPiDiNet()
 
     conv_weights, bn_weights, relu_weights = model.get_weights()
-    wd = 1e-4
+    wd = 1e-3
     lr = 1e-4
 
     param_groups = [{
@@ -62,6 +62,7 @@ def main():
     trainer = ModelTrain(data, model.model, optimizer)
     for epoch in range(1, 100):
         trainer.train()
+
         saveID = save_checkpoint({
             'epoch': epoch,
             'state_dict': model.model.state_dict(),
