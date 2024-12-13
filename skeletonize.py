@@ -10,7 +10,7 @@ from pygradskeleton import grayscale_skeletonize
 
 def main():
 	root_path = Path("D:/1.ToSaver/profileimages/photo_database_complited")
-	image_folder = root_path / "IMGP3353-3355"
+	image_folder = root_path / "IMGP6751"
 	edges = get_edges(image_folder)
 	edges = edges[:, :, 0]
 	edges[edges < 125] = 0

@@ -30,7 +30,7 @@ def main():
 	model_name = "pidinet_rock"
 
 	root_path = Path("D:/1.ToSaver/profileimages/photo_database_complited")
-	image_folder = root_path / "IMGP3353-3355"
+	image_folder = root_path / "IMGP6751"
 	image = get_image(image_folder)
 	#
 	model = get_model(model_name)

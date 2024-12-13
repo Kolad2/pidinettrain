@@ -1,4 +1,5 @@
 ```cli
+pip install scikit-image
 pip insatall pytorch
 pip insatll matplotlib
 pip install rasterio

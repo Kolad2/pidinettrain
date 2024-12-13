@@ -4,7 +4,7 @@ from rocknetmanager.tools.vectorize import vectorize
 
 def main():
 	root_path = Path("D:/1.ToSaver/profileimages/photo_database_complited")
-	image_folder = root_path / "IMGP3353-3355"
+	image_folder = root_path / "IMGP6751"
 	edges = load_thin_edges(image_folder)
 	edges = edges[:,:,0]
 	polylines = vectorize(edges, image_folder / "areas")
