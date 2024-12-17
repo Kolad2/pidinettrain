@@ -29,8 +29,8 @@ models = {
 def main():
 	model_name = "pidinet_rock"
 
-	root_path = Path("D:/1.ToSaver/profileimages/photo_database_complited")
-	image_folder = root_path / "IMGP6751"
+	root_path = Path("D:/1.ToSaver/profileimages/photo_database")
+	image_folder = root_path / "PAN6_1"
 	image = get_image(image_folder)
 	#
 	model = get_model(model_name)
@@ -39,7 +39,6 @@ def main():
 	edges = model(image)
 
 	save_edges(edges, image_folder)
-
 
 
 	fig = plt.figure(figsize=(14, 9))
