@@ -1,7 +1,8 @@
 ```cli
+pip install scipy
 pip install scikit-image
 pip insatall pytorch
-pip insatll matplotlib
+pip insatall matplotlib
 pip install rasterio
 pip install skan
 pip install pathlib

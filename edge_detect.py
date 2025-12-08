@@ -29,8 +29,9 @@ models = {
 def main():
 	model_name = "pidinet_rock"
 
-	root_path = Path("D:/1.ToSaver/profileimages/photo_database")
-	image_folder = root_path / "PAN6_1"
+	#root_path = Path("D:/1.ToSaver/profileimages/photo_database")
+	root_path = Path("/media/koladik/HardDisk/Image/")
+	image_folder = root_path / "ESRI_cut02_5m"
 	image = get_image(image_folder)
 	#
 	model = get_model(model_name)
@@ -39,7 +40,6 @@ def main():
 	edges = model(image)
 
 	save_edges(edges, image_folder)
-
 
 	fig = plt.figure(figsize=(14, 9))
 	axs = [fig.add_subplot(1, 2, 1),fig.add_subplot(1, 2, 2)]
@@ -63,7 +63,7 @@ def save_edges(edges, image_folder: Path):
 
 def get_image(image_folder: Path, size=None):
 	image_path = image_folder / image_folder.stem
-	image_path = image_path.with_suffix(".png")
+	image_path = image_path.with_suffix(".tif")
 	image = cv2.imread(str(image_path))
 	image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 	image = image.astype(np.uint8)

@@ -9,8 +9,8 @@ from pygradskeleton import grayscale_skeletonize
 # result_1 = grayscaleskelet(image, method="KIM")
 
 def main():
-	root_path = Path("D:/1.ToSaver/profileimages/photo_database")
-	image_folder = root_path / "PAN6_1"
+	root_path = Path("/media/koladik/HardDisk/Image")
+	image_folder = root_path / "ESRI_cut02_5m"
 	edges = get_edges(image_folder)
 	edges = edges[:, :, 0]
 	edges[edges < 125] = 0
