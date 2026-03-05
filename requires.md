@@ -1,4 +1,8 @@
 ```cli
+git submodule update --init --recursive
+```
+
+```cli
 pip install scipy
 pip install scikit-image
 pip insatall pytorch
