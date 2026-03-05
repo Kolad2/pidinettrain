@@ -3,7 +3,7 @@ import numpy as np
 from pathlib import Path
 
 
-class StorageManager:
+class Storage:
     IMAGE_SUFFIXES = (".png", ".jpg", ".jpeg", ".bmp", ".tif", ".tiff",
                       ".PNG", ".JPG", ".JPEG", ".BMP", ".TIF", ".TIFF")
     debug = True
@@ -12,6 +12,27 @@ class StorageManager:
         self.base_name: str | None = None
         self.folder_path: Path | None = None
         self.image_path: Path | None = None
+        self.edges_path: Path | None = None
+
+    def save_edges(self, edges: np.ndarray, ext="png") -> None:
+        if self.edges_path is None:
+            self.edges_path = self.folder_path / (self.base_name + "_edges")
+
+        ext = "." + ext.lstrip(".")
+        if not self.is_valid_extension(ext):
+            raise ValueError(f"Invalid extension: {ext}")
+
+        if edges.dtype != np.uint8:
+            max_val = np.max(edges)
+            if max_val == 0:
+                edges = np.zeros_like(edges, dtype=np.uint8)
+            else:
+                edges = ((edges / max_val) * 255).astype(np.uint8)
+
+        out_path = self.edges_path.with_suffix(ext)
+        ok = cv2.imwrite(str(out_path), edges)
+        if not ok:
+            raise IOError(f"cv2.imwrite failed for: {out_path}")
 
     def load_image(self, size=None):
         self.image_path = self._resolve_image_path()
@@ -24,6 +45,9 @@ class StorageManager:
         image = image.astype(np.uint8)
         image = image if size is None else cv2.resize(image, size)
         return image
+
+    def is_valid_extension(self, ext):
+        return ext in self.IMAGE_SUFFIXES
 
     def _resolve_image_path(self) -> Path | None:
         if self.image_path is not None:

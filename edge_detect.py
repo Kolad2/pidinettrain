@@ -6,7 +6,7 @@ import torch.cuda
 
 from rockedgesdetectors import ModelPiDiNet, ModelRCF, Cropper
 from storage_manager import save_edges, save_edges_path, get_image_from_path, get_image_from_folder
-from storage_manager import StorageManager
+from storage_manager import Storage
 
 models = {
 	"pidinet_5": {
@@ -36,15 +36,13 @@ def main():
 	#image_folder = root_path / "ESRI_cut02_5m"
 
 	image_path = Path("test_images/test_01.png")
-	storage = StorageManager.from_image_path(image_path)
+	storage = Storage.from_image_path(image_path)
 	image = storage.load_image()
 
 	model = get_model(model_name)
 	model = Cropper(model, crop=512, pad=64)
-
 	edges = model(image)
-
-	save_edges_path(edges, Path("test_images/test_edges_01.png"))
+	storage.save_edges(edges)
 
 	# fig = plt.figure(figsize=(14, 9))
 	# axs = [fig.add_subplot(1, 2, 1),fig.add_subplot(1, 2, 2)]
