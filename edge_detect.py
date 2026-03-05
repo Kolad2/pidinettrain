@@ -5,6 +5,8 @@ import matplotlib.pyplot as plt
 import torch.cuda
 
 from rockedgesdetectors import ModelPiDiNet, ModelRCF, Cropper
+from storage_manager import save_edges, save_edges_path, get_image_from_path, get_image_from_folder
+from storage_manager import StorageManager
 
 models = {
 	"pidinet_5": {
@@ -30,46 +32,29 @@ def main():
 	model_name = "pidinet_rock"
 
 	#root_path = Path("D:/1.ToSaver/profileimages/photo_database")
-	root_path = Path("/media/koladik/HardDisk/Image/")
-	image_folder = root_path / "ESRI_cut02_5m"
-	image = get_image(image_folder)
-	#
+	#root_path = Path("/media/koladik/HardDisk/Image/")
+	#image_folder = root_path / "ESRI_cut02_5m"
+
+	image_path = Path("test_images/test_01.png")
+	storage = StorageManager.from_image_path(image_path)
+	image = storage.load_image()
+
 	model = get_model(model_name)
 	model = Cropper(model, crop=512, pad=64)
 
 	edges = model(image)
 
-	save_edges(edges, image_folder)
+	save_edges_path(edges, Path("test_images/test_edges_01.png"))
 
-	fig = plt.figure(figsize=(14, 9))
-	axs = [fig.add_subplot(1, 2, 1),fig.add_subplot(1, 2, 2)]
-	axs[0].imshow(image)
-	axs[1].imshow(edges)
-	plt.show()
+	# fig = plt.figure(figsize=(14, 9))
+	# axs = [fig.add_subplot(1, 2, 1),fig.add_subplot(1, 2, 2)]
+	# axs[0].imshow(image)
+	# axs[1].imshow(edges)
+	# plt.show()
 
 
 def get_model(name):
 	return models[name]["model"](models[name]["checkpoint_path"])
-
-
-def save_edges(edges, image_folder: Path):
-	edge_path = image_folder.name + "_edge"
-	edge_path = image_folder / str(edge_path)
-	edge_path = edge_path.with_suffix(".png")
-	image = ((edges/np.max(edges))*255).astype(np.uint8)
-	image = cv2.merge((image, image, image))
-	cv2.imwrite(str(edge_path), image)
-
-
-def get_image(image_folder: Path, size=None):
-	image_path = image_folder / image_folder.stem
-	image_path = image_path.with_suffix(".tif")
-	image = cv2.imread(str(image_path))
-	image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-	image = image.astype(np.uint8)
-	image = image if size is None else cv2.resize(image, size)
-	return image
-
 
 if __name__ == "__main__":
 	main()
