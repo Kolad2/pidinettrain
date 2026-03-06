@@ -15,6 +15,21 @@ class Storage:
         self.edges_path: Path | None = None
         self.thin_edges_path: Path | None = None
 
+    def load_thin_edges(self, ext: str = "png") -> np.ndarray:
+        if self.thin_edges_path is None:
+            self.thin_edges_path = self.folder_path / (self.base_name + "_thin_edges")
+
+        ext = "." + ext.lstrip(".")
+        if not self.is_valid_extension(ext):
+            raise ValueError(f"Invalid extension: {ext}")
+        out_path = self.thin_edges_path.with_suffix(ext)
+
+        edges = cv2.imread(str(out_path), cv2.IMREAD_GRAYSCALE)
+        if edges is None:
+            raise FileNotFoundError(f"cv2.imread() failed for: {out_path}")
+        edges = image_formatter.uint8_normalize(edges)
+        return edges
+
 
     def save_thin_edges(self, edges: np.ndarray, ext="png") -> None:
         if self.thin_edges_path is None:
@@ -101,6 +116,28 @@ class Storage:
         return None
 
     @classmethod
+    def from_thin_edges_path(cls, thin_edges_path: Path) -> Storage:
+        thin_edges_path = Path(thin_edges_path)
+        if not thin_edges_path.is_file():
+            raise FileNotFoundError(f"Edges image file not found: {thin_edges_path}")
+
+        base_name = thin_edges_path.stem
+        suffix = "_thin_edges"
+        if not base_name.endswith(suffix):
+            raise ValueError(f"Edges file name must end with '{suffix}': {thin_edges_path.name}")
+
+        base_name = base_name[: -len(suffix)]
+        if not base_name:
+            raise ValueError(f"Invalid base name after removing '{suffix}': {thin_edges_path.name}")
+
+        storage = cls()
+        storage.thin_edges_path = thin_edges_path
+        storage.folder_path = thin_edges_path.parent
+        storage.base_name = base_name
+        return storage
+
+
+    @classmethod
     def from_edges_path(cls, edges_path: Path) -> Storage:
         edges_path = Path(edges_path)
         if not edges_path.is_file():
@@ -120,7 +157,6 @@ class Storage:
         storage.folder_path = edges_path.parent
         storage.base_name = base_name
         return storage
-
 
     @classmethod
     def from_image_path(cls, image_path: Path) -> Storage:
