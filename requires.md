@@ -12,7 +12,9 @@ pip install pathlib
 pip install tqdm
 pip install shapely
 pip install opencv-contrib-python
+pip install pyshp
 ```
+
 Для cpu
 ```cli
 pip insatall pytorch
