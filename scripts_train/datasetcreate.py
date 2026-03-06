@@ -10,7 +10,7 @@ import json
 
 
 def main():
-	with open("./config.json") as file:
+	with open("../config.json") as file:
 		config = json.load(file)
 		image_folders = [Path(path) for path in config["databases"]]
 		dataset_root = Path(config["train_folder"])
@@ -19,9 +19,6 @@ def main():
 
 	images_folder = image_folders[0]
 	process_folder(images_folder, lst)
-
-	#images_folder = image_folders[1]
-	#process_folder(images_folder, lst)
 
 	images_folder = image_folders[2]
 	process_folder(images_folder, lst)
