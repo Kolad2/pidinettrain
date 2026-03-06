@@ -5,8 +5,6 @@ import matplotlib.pyplot as plt
 from pygradskeleton import grayscale_skeletonize
 from storage_manager import Storage
 
-# image = cv2.imread("path/to/image")
-# result_1 = grayscaleskelet(image, method="KIM")
 
 def main():
 	root_path = Path("/media/koladik/HardDisk/Image")
