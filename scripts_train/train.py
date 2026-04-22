@@ -32,9 +32,9 @@ def main():
     seed = int(time.time())
     torch.manual_seed(seed)
     torch.cuda.manual_seed_all(seed)
-    checkpoint_path = Path("models/table7_pidinet.pth")
+    checkpoint_path = Path("../models/table7_pidinet.pth")
     #checkpoint_path = Path("save_models/checkpoint_000.pth")
-    test_image_folder = Path("test_images")
+    test_image_folder = Path("../test_images")
 
     model = ModelPiDiNet(checkpoint_path)
     #model = ModelPiDiNet()
@@ -67,15 +67,15 @@ def main():
             'epoch': epoch,
             'state_dict': model.model.state_dict(),
             'optimizer': optimizer.state_dict(),
-        }, epoch, "save_models")
+        }, epoch, "../save_models")
         for image_path in test_image_folder.iterdir():
-            epoch_folder = Path("train_test/epoch_" + str(epoch))
+            epoch_folder = Path("../train_test/epoch_" + str(epoch))
             epoch_folder.mkdir(parents=False, exist_ok=True)
             save_image_test(model, image_path, epoch_folder)
 
 
 def save_image_test(model, image_path: Path, save_folder=None):
-    save_folder = "train_test" if save_folder is None else str(save_folder)
+    save_folder = "../train_test" if save_folder is None else str(save_folder)
     #
     model.model.eval()
     image = cv2.imread(str(image_path))
