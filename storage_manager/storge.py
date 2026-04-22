@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 from pathlib import Path
+from typing import Self
 from . import image_formatter
 
 class Storage:
@@ -116,7 +117,7 @@ class Storage:
         return None
 
     @classmethod
-    def from_thin_edges_path(cls, thin_edges_path: Path) -> Storage:
+    def from_thin_edges_path(cls, thin_edges_path: Path) -> Self:
         thin_edges_path = Path(thin_edges_path)
         if not thin_edges_path.is_file():
             raise FileNotFoundError(f"Edges image file not found: {thin_edges_path}")
@@ -138,7 +139,7 @@ class Storage:
 
 
     @classmethod
-    def from_edges_path(cls, edges_path: Path) -> Storage:
+    def from_edges_path(cls, edges_path: Path) -> Self:
         edges_path = Path(edges_path)
         if not edges_path.is_file():
             raise FileNotFoundError(f"Edges image file not found: {edges_path}")
@@ -159,7 +160,7 @@ class Storage:
         return storage
 
     @classmethod
-    def from_image_path(cls, image_path: Path) -> Storage:
+    def from_image_path(cls, image_path: Path) -> Self:
         image_path = Path(image_path)
         if not image_path.is_file():
             raise FileNotFoundError(f"Image file not found: {image_path}")
@@ -170,7 +171,7 @@ class Storage:
         return storage
 
     @classmethod
-    def from_folder_path(cls, folder_path: Path) -> Storage:
+    def from_folder_path(cls, folder_path: Path) -> Self:
         folder_path = Path(folder_path)
         if not folder_path.is_dir():
             raise NotADirectoryError(f"Folder not found: {folder_path}")

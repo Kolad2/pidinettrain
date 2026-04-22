@@ -2,6 +2,7 @@ import cv2
 from pathlib import Path
 import numpy as np
 import matplotlib.pyplot as plt
+import torch
 import torch.cuda
 
 from rockedgesdetectors import ModelPiDiNet, ModelRCF, Cropper
@@ -19,7 +20,7 @@ models = {
 	},
 	"pidinet_rock": {
 		"model": ModelPiDiNet,
-		"checkpoint_path": "save_models/checkpoint_000.pth"
+		"checkpoint_path": "../save_models/checkpoint_000.pth"
 	},
 	"rcf": {
 		"model": ModelRCF,
@@ -35,7 +36,7 @@ def main():
 	#root_path = Path("/media/koladik/HardDisk/Image/")
 	#image_folder = root_path / "ESRI_cut02_5m"
 
-	image_path = Path("test_images/test_01.png")
+	image_path = Path("../test_images/test_01.png")
 	storage = Storage.from_image_path(image_path)
 	image = storage.load_image()
 

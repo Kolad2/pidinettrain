@@ -1,8 +1,8 @@
 {
   "databases": [
-    "D:/1.ToSaver/profileimages/Loviisa_database",
-    "D:/1.ToSaver/profileimages/Matteo_database",
-    "D:/1.ToSaver/profileimages/photo_database_complited"
+    "/media/koladik/HardDisk/data/SegmentationDatasets/datasets/data_outcrops",
+    "/media/koladik/HardDisk/data/SegmentationDatasets/datasets/Loviisa_database",
+    "/media/koladik/HardDisk/data/SegmentationDatasets/datasets/Matteo_database"
   ],
-  "train_folder": "D:/1.ToSaver/profileimages/train_data"
+  "train_folder": "/media/koladik/HardDisk/data/SegmentationDatasets/prepared"
 }

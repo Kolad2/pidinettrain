@@ -29,9 +29,12 @@ models = {
 
 def main():
 	model_name = "pidinet_rock"
-	image_path = Path("../test_images/test_01.png")
+	# image_path = Path("../test_images/test_01.png")
 
-	storage = Storage.from_image_path(image_path)
+	image_path = Path("/media/koladik/HardDisk/segment_picture/20180811_191241")
+	storage = Storage.from_folder_path(image_path)
+	# storage = Storage.from_image_path(image_path)
+
 	image = storage.load_image()
 	model = get_model(model_name)
 	model = Cropper(model, crop=512, pad=64)
