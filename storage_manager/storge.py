@@ -5,7 +5,7 @@ from typing import Self
 from . import image_formatter
 
 class Storage:
-    IMAGE_SUFFIXES = (".png", ".jpg", ".jpeg", ".bmp", ".tif", ".tiff",
+    IMAGE_SUFFIXES = (".png", ".jpg", ".jpeg", ".bmp", ".tif", ".tiff", ".pgm",
                       ".PNG", ".JPG", ".JPEG", ".BMP", ".TIF", ".TIFF")
     debug = True
 
@@ -110,9 +110,10 @@ class Storage:
 
     @classmethod
     def _find_image_file(cls, folder_path: Path, name) -> Path | None:
+        # Ищет рекурсивно по всей папке и всем подпапкам: **/name.ext
         for suf in cls.IMAGE_SUFFIXES:
-            candidate = folder_path / f"{name}{suf}"
-            if candidate.is_file():
+            candidate = next(folder_path.rglob(f"{name}{suf}"), None)
+            if candidate is not None and candidate.is_file():
                 return candidate
         return None
 
