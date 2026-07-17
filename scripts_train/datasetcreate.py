@@ -1,104 +1,153 @@
+from sys import path_hooks
+
 import numpy as np
 import cv2
 from pathlib import Path
 import matplotlib.pyplot as plt
 from rocknetmanager.tools.shape_load import shape_load
 import pandas as pd
-from rocknetmanager.tools.image_data import ImageData
+from rocknetmanager import ImageData, DatasetPathList, ImageTiler
 from tqdm import tqdm
 import json
 
 
 def main():
-	with open("../config.json") as file:
-		config = json.load(file)
-		image_folders = [Path(path) for path in config["databases"]]
-		dataset_root = Path(config["train_folder"])
+	# Входной lst с сырыми данными
+	raw_lst_path = Path(r"D:\Data\Outcrops\dataset_raw.lst")
 
-	lst = DatasetPathList(dataset_root)
+	# Корень сырых данных.
+	# Если пути в raw_lst_path уже считаются относительно папки, где лежит dataset.lst,
+	# можно оставить root_path=None.
+	raw_root = raw_lst_path.parent
 
-	images_folder = image_folders[0]
-	process_folder(images_folder, lst)
+	# Куда сохраняем новый датасет
+	dataset_root = Path(r"D:\Data")
 
-	images_folder = image_folders[2]
-	process_folder(images_folder, lst)
+	# Куда сохраняем новый lst
+	output_lst_path = dataset_root / r"dataset.lst"
 
-	lst.save()
+	cropres = (512, 512)
+	cropshift = (337, 337)
 
+	# Загружаем сырой список
+	lstraw = DatasetPathList.load(
+		lst_path=raw_lst_path,
+		root_path=raw_root,
+	)
+	lst_selftrain = DatasetPathList.load(
+		lst_path=Path(r"D:\Data\Outcrops\dataset_selftrain.lst"),
+		root_path=raw_root,
+	)
 
-def process_folder(images_folder, lst):
-	list_folder_images = [path for path in images_folder.iterdir()]
-	for image_folder in list_folder_images:
-		print("Processing:", image_folder.stem)
-		data, bbox = ImageData.load(image_folder)
-		save_path = lst.root / image_folder.stem
-		save_path.mkdir(parents=False, exist_ok=True)
-		process_image(data, bbox, lst, save_path=save_path)
-
-
-def crop_save(data, save_path, lst):
-	if data.is_accessible():
-		image_path, label_path = data.save(
-			root=save_path,
-			name=str(len(lst))
+	with DatasetPathList(
+		root_path=dataset_root,
+		save_path=output_lst_path
+	) as lst:
+		# Обрабатываем
+		process_lst(
+			lstraw=lstraw,
+			lst=lst,
+			save_path=dataset_root / "train_data",
+			cropshift=cropshift,
+			cropres=cropres,
 		)
-		image_path = image_path.relative_to(lst.root)
-		label_path = label_path.relative_to(lst.root)
-		lst.add(str(image_path), str(label_path))
+
+		process_lst(
+			lstraw=lst_selftrain,
+			lst=lst,
+			save_path=dataset_root / "train_data",
+			cropshift=cropshift,
+			cropres=cropres,
+		)
 
 
-def process_image(data: ImageData, bbox, lst, save_path=None, cropshift=(512, 512), cropres=(512, 512)):
-	save_path = lst.root if save_path is None else save_path
-	list_x = np.arange(bbox[0], bbox[2], cropshift[0])
-	list_y = np.arange(bbox[1], bbox[3], cropshift[1])
-	#
-	paths = {
-		"rotate_0": save_path / "rotate_0",
-		"rotate_90": save_path / "rotate_90",
-		"rotate_180": save_path / "rotate_180",
-		"rotate_270": save_path / "rotate_270"
-	}
-	for key in paths:
-		paths[key].mkdir(parents=False, exist_ok=True)
-	coordinates = [(x, y) for y in list_y for x in list_x]
-	for (x, y) in tqdm(coordinates):
-		cropped_data = data.crop_image(x, y, cropres[0], cropres[1])
-		for key in paths:
-			crop_save(cropped_data, paths[key], lst)
-			cropped_data.rotate()
+def process_lst(
+	lstraw: DatasetPathList,
+	lst: DatasetPathList,
+	cropshift,
+	cropres,
+	save_path: Path | None = None,
+):
+	if lstraw.root is None:
+		raise ValueError("У lstraw.root должен быть задан root_path")
+
+	if lst.root is None:
+		raise ValueError("У lst.root должен быть задан root_path")
+
+	save_path = Path(lst.root if save_path is None else save_path).resolve()
+	lst_root = Path(lst.root).resolve()
+
+	try:
+		save_path.relative_to(lst_root)
+	except ValueError:
+		raise ValueError(
+			f"save_path={save_path} должен лежать внутри lst.root={lst_root}"
+		)
+
+	save_path.mkdir(parents=True, exist_ok=True)
+
+	tiler = ImageTiler(
+		tile_resolution=cropres,
+		cropshift=cropshift,
+		lst=lst,
+		rotation=True,
+	)
+
+	pbar = tqdm(
+		lstraw.lst.iterrows(),
+		total=len(lstraw),
+		desc="Processing raw dataset",
+		position=0,
+		leave=True,
+		dynamic_ncols=True,
+	)
+
+	for idx, row in pbar:
+		path_image = resolve_lst_path(lstraw, row["images"])
+		path_labels = resolve_lst_path(lstraw, row["labels"])
+		path_mask = resolve_lst_path(lstraw, row.get("masks", None))
+
+		if path_image is None:
+			raise ValueError(f"В строке {idx} не задан путь к image")
+
+		if path_labels is None:
+			raise ValueError(f"В строке {idx} не задан путь к label")
+
+		pbar.set_postfix_str(path_image.stem)
+
+		data, bbox = ImageData.load(
+			path_image=path_image,
+			path_labels=path_labels,
+			path_mask=path_mask,
+			thickness=1
+		)
+
+		sample_name = f"{idx:06d}_{path_image.stem}"
+
+		sample_save_path = save_path / sample_name
+		sample_save_path.mkdir(parents=True, exist_ok=True)
+
+		tiler.tile_image(
+			data=data,
+			bbox=None,
+			name_image=sample_name,
+			save_path=sample_save_path,
+		)
+
+def resolve_lst_path(dataset: DatasetPathList, value) -> Path | None:
+	if value is None or pd.isna(value):
+		return None
+
+	path = Path(value)
+
+	if path.is_absolute():
+		return path
+
+	if dataset.root is None:
+		return path
+
+	return dataset.root / path
 
 
-class DatasetPathList:
-	def __init__(self, root):
-		self.lst = pd.DataFrame({
-			'images': [],
-			'labels': []
-		})
-		self.root = root
-		self.images = []
-		self.labels = []
-
-	def add(self, image, label):
-		self.lst.loc[len(self.lst)] = [image, label]
-		self.images.append(image)
-		self.labels.append(label)
-
-	def save(self):
-		lst = {
-			'images': self.images,
-			'labels': self.labels
-		}
-		lst = pd.DataFrame(lst)
-		lst.to_csv(str(self.root / "train.lst"), sep='\t', index=False, header=False)
-
-	def __len__(self):
-		return len(self.images)
-
-	@classmethod
-	def load(cls, load_path):
-		lst = pd.read_csv(str(load_path), sep='\t', header=None)
-
-
-
-main()
-
+if __name__ == "__main__":
+	main()
